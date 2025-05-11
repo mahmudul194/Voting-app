@@ -1,36 +1,36 @@
-require('dotenv').config(); // Load environment variables from the .env file
+require('dotenv').config(); 
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
-const path = require('path'); // To resolve file paths for static files
+const path = require('path'); 
 const app = express();
-const PORT = process.env.PORT || 3000; // Use the port from environment variable or fallback to 3000
+const PORT = process.env.PORT || 3000; 
 
-// CORS configuration
+
 app.use(cors());
 
-// Middleware to parse JSON
+
 app.use(express.json());
 
-// Serve static files from the "public" folder (for frontend)
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database connection pool using environment variables for sensitive data
+
 const db = mysql.createPool({
   host: 'localhost',
-  user: process.env.DB_USER,         // Username from .env
-  password: process.env.DB_PASSWORD, // Password from .env
-  database: process.env.DB_NAME      // Database name from .env
+  user: process.env.DB_USER,         
+  password: process.env.DB_PASSWORD, 
+  database: process.env.DB_NAME      
 });
 
 // Check DB connection when the server starts
 db.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to the database:', err);
-    process.exit(1); // Exit the server if DB connection fails
+    process.exit(1); 
   }
   console.log('Connected to the MySQL database');
-  connection.release(); // Release the connection after checking
+  connection.release(); 
 });
 
 // Vote API
@@ -56,7 +56,7 @@ app.post('/vote', (req, res) => {
   );
 });
 
-// Remove Vote API
+
 app.post('/removeVote', (req, res) => {
   const { candidate } = req.body;
   if (!candidate) {
@@ -79,7 +79,7 @@ app.post('/removeVote', (req, res) => {
   );
 });
 
-// Results API
+
 app.get('/results', (req, res) => {
   db.query("SELECT * FROM votes", (err, rows) => {
     if (err) {
@@ -90,12 +90,12 @@ app.get('/results', (req, res) => {
   });
 });
 
-// Serve static frontend (HTML, CSS, JS) on the root route
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start the server
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
