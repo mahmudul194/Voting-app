@@ -23,7 +23,7 @@ const db = mysql.createPool({
   database: process.env.DB_NAME      
 });
 
-// Check DB connection when the server starts
+
 db.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to the database:', err);
