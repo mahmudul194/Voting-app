@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voting Simulator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🗳 CR Selection</h1>
+    <div class="button-group">
+      <button onclick="vote('Sabreena')">Vote for Sabreena</button>
+      <button onclick="vote('Azaz')">Vote for Azaz</button>
+    </div>
+
+    <div id="results"></div>
+    
+    <div class="actions">
+      <button id="endVote">Show Results</button>
+      <button id="removeVoteBtn">Remove Vote</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

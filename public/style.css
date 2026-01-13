@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #121212;
+  color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-image: linear-gradient(45deg, #1a1a1a, #2c2c2c);
+  animation: fadeIn 1.5s ease-out;
+}
+
+.container {
+  background-color: #222222;
+  border-radius: 16px;
+  padding: 3rem 2.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out 0.5s forwards;
+}
+
+/* Title */
+h1 {
+  font-size: 2.4rem;
+  margin-bottom: 2.5rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out 1s forwards;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Button Group */
+.button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out 1.5s forwards;
+}
+
+button {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(38, 104, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 16px rgba(38, 104, 255, 0.6);
+}
+
+button:hover::before {
+  width: 0;
+  height: 0;
+}
+
+button span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Actions (Show Results and Remove Vote Buttons) */
+.actions {
+  margin-top: 2rem;
+}
+
+#endVote, #removeVoteBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  margin-top: 1.5rem;
+  padding: 1.2rem 2rem;
+  box-shadow: 0 0 15px rgba(255, 75, 43, 0.4);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+#endVote:hover, #removeVoteBtn:hover {
+  box-shadow: 0 0 18px rgba(255, 75, 43, 0.6);
+  transform: translateY(-5px);
+}
+
+/* Results Section */
+#results {
+  margin-top: 1.5rem;
+  background-color: #1f1f1f;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  display: none;
+  transition: opacity 0.5s ease-out;
+}
+
+/* Fade-in effect */
+#results.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
