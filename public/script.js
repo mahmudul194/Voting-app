@@ -3,9 +3,9 @@ const API_URL = window.location.origin;
 let hasVoted = localStorage.getItem("hasVoted") === "true";
 let votedCandidate = localStorage.getItem("votedCandidate");
 
-/* ===========================
+/* ========================
    Vote
-=========================== */
+======================== */
 function vote(candidate) {
   if (hasVoted) {
     alert("❌ You have already voted.");
@@ -31,12 +31,12 @@ function vote(candidate) {
       localStorage.setItem("hasVoted", "true");
       localStorage.setItem("votedCandidate", candidate);
     })
-    .catch(() => alert("❌ Server error. Try again later."));
+    .catch(() => alert("❌ Server error."));
 }
 
-/* ===========================
+/* ========================
    Remove Vote
-=========================== */
+======================== */
 function removeVote() {
   if (!hasVoted) {
     alert("❌ You have not voted yet.");
@@ -62,12 +62,12 @@ function removeVote() {
       localStorage.setItem("hasVoted", "false");
       localStorage.removeItem("votedCandidate");
     })
-    .catch(() => alert("❌ Server error. Try again later."));
+    .catch(() => alert("❌ Server error."));
 }
 
-/* ===========================
+/* ========================
    Show Results
-=========================== */
+======================== */
 document.getElementById("endVote").onclick = () => {
   const password = prompt("Enter admin password:");
 
@@ -83,7 +83,7 @@ document.getElementById("endVote").onclick = () => {
     .then(res => res.json())
     .then(data => {
       if (!data.length) {
-        resultsDiv.innerHTML = "<h3>No candidates found.</h3>";
+        resultsDiv.innerHTML = "<h3>No candidates found</h3>";
         return;
       }
 
@@ -103,7 +103,6 @@ document.getElementById("endVote").onclick = () => {
       }
 
       resultsDiv.innerHTML = resultHTML;
-      resultsDiv.classList.add('show');
     })
     .catch(() => {
       resultsDiv.innerHTML = "<h3>Error loading results</h3>";
