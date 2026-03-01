@@ -1,9 +1,7 @@
 require('dotenv').config();
-
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
-const session = require('express-session');
 const path = require('path');
 
 const app = express();
@@ -11,16 +9,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
-
 app.use(express.static(path.join(__dirname, 'public')));
 
+// MySQL Pool
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -28,97 +19,102 @@ const db = mysql.createPool({
   database: process.env.DB_NAME
 });
 
-/* ======================
-   Authentication Middleware
-====================== */
-function isAuthenticated(req, res, next) {
-  if (!req.session.student) {
-    return res.status(401).json({ error: "Login required" });
-  }
-  next();
-}
+// Test DB connection
+db.getConnection()
+  .then(conn => {
+    console.log('Connected to MySQL DB');
+    conn.release();
+  })
+  .catch(err => {
+    console.error('DB connection error:', err);
+    process.exit(1);
+  });
 
-/* ======================
-   Login Route
-====================== */
-app.post('/login', (req, res) => {
+/* ===========================
+   STUDENT LOGIN
+=========================== */
+app.post("/login", async (req, res) => {
   const { name, student_id, section, batch } = req.body;
 
-  if (!name || !student_id || !section || !batch) {
+  if (!name || !student_id || !section || !batch)
     return res.status(400).json({ error: "All fields required" });
-  }
 
-  if (section !== 'L') {
+  if (section.toUpperCase() !== "L")
     return res.status(403).json({ error: "Only Section L allowed" });
+
+  try {
+    const [rows] = await db.query("SELECT * FROM students WHERE student_id = ?", [student_id]);
+    if (rows.length === 0) return res.status(403).json({ error: "Student not found" });
+    if (rows[0].name !== name || rows[0].batch !== batch)
+      return res.status(403).json({ error: "Student info mismatch" });
+
+    res.json({ success: true, message: "Login successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const idPattern = /^232-35-\d{3}$/;
-  if (!idPattern.test(student_id)) {
-    return res.status(400).json({ error: "Invalid ID format" });
-  }
-
-  db.query(
-    "SELECT * FROM students WHERE student_id = ? AND name = ? AND section = ? AND batch = ?",
-    [student_id, name, section, batch],
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: "Server error" });
-
-      if (rows.length === 0) {
-        return res.status(403).json({ error: "Student not found" });
-      }
-
-      req.session.student = rows[0];
-
-      res.json({ success: true, message: "Login successful" });
-    }
-  );
 });
 
-/* ======================
-   Vote Route (Protected)
-====================== */
-app.post('/vote', isAuthenticated, (req, res) => {
-  const { candidate } = req.body;
-  const student = req.session.student;
+/* ===========================
+   VOTE
+=========================== */
+app.post("/vote", async (req, res) => {
+  const { candidate, student_id } = req.body;
+  const validCandidates = ["Sabreena", "Azaz"]; // restrict to these
 
-  db.query(
-    "SELECT has_voted FROM students WHERE student_id = ?",
-    [student.student_id],
-    (err, rows) => {
-      if (rows[0].has_voted) {
-        return res.status(400).json({ error: "You already voted" });
-      }
+  if (!candidate || !student_id)
+    return res.status(400).json({ error: "Candidate and student_id required" });
 
-      db.query(
-        "UPDATE votes SET vote_count = vote_count + 1 WHERE candidate = ?",
-        [candidate],
-        (err, result) => {
-          if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Candidate not found" });
-          }
+  if (!validCandidates.includes(candidate))
+    return res.status(400).json({ error: "Invalid candidate" });
 
-          db.query(
-            "UPDATE students SET has_voted = TRUE WHERE student_id = ?",
-            [student.student_id]
-          );
+  try {
+    const [check] = await db.query("SELECT * FROM votes WHERE student_id = ?", [student_id]);
+    if (check.length > 0) return res.status(400).json({ error: "You already voted" });
 
-          res.json({ success: true, message: "Vote recorded" });
-        }
-      );
-    }
-  );
+    await db.query("INSERT INTO votes (candidate, student_id) VALUES (?, ?)", [candidate, student_id]);
+    res.json({ message: `✅ Vote recorded for ${candidate}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
-/* ======================
-   Results
-====================== */
-app.get('/results', isAuthenticated, (req, res) => {
-  db.query("SELECT * FROM votes", (err, rows) => {
-    if (err) return res.status(500).json({ error: "Error fetching results" });
+/* ===========================
+   REMOVE VOTE
+=========================== */
+app.post("/removeVote", async (req, res) => {
+  const { student_id } = req.body;
+  if (!student_id) return res.status(400).json({ error: "student_id required" });
+
+  try {
+    const [result] = await db.query("DELETE FROM votes WHERE student_id = ?", [student_id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: "No vote to remove" });
+
+    res.json({ message: "✅ Your vote has been removed" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* ===========================
+   ADMIN RESULTS
+=========================== */
+app.post("/results", async (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.ADMIN_PASSWORD)
+    return res.status(403).json({ error: "Unauthorized access" });
+
+  try {
+    const [rows] = await db.query(
+      "SELECT candidate, COUNT(*) as votes FROM votes GROUP BY candidate"
+    );
     res.json(rows);
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

@@ -8,29 +8,30 @@
 </head>
 <body>
   <div class="container">
-    <h1>🗳 CR Selection</h1>
 
     <!-- LOGIN SECTION -->
     <div id="loginSection">
-      <input id="name" placeholder="Name" />
-      <input id="student_id" placeholder="232-35-xxx" />
-      <input id="section" placeholder="Section (L only)" />
-      <input id="batch" placeholder="Batch" />
+      <h1>🗳 Login to Vote</h1>
+      <input type="text" id="name" placeholder="Name" />
+      <input type="text" id="student_id" placeholder="Student ID (e.g., 232-35-001)" />
+      <input type="text" id="section" placeholder="Section (L only)" />
+      <input type="text" id="batch" placeholder="Batch" />
       <button onclick="login()">Login</button>
     </div>
 
     <!-- VOTING SECTION -->
-    <div id="votingSection" style="display:none;">
+    <div id="votingSection" style="display: none;">
+      <h1>🗳 CR Selection</h1>
       <div class="button-group">
         <button onclick="vote('Sabreena')">Vote for Sabreena</button>
         <button onclick="vote('Azaz')">Vote for Azaz</button>
       </div>
 
       <div id="results"></div>
-
+      
       <div class="actions">
         <button id="endVote">Show Results</button>
-        <button id="removeVoteBtn">Remove Vote</button>
+        <button id="removeVoteBtn">Remove My Vote</button>
       </div>
     </div>
 
