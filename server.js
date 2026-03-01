@@ -12,9 +12,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ===========================
-   Database Connection
-=========================== */
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -32,85 +29,80 @@ db.getConnection((err, connection) => {
   connection.release();
 });
 
-/* ===========================
-   Vote API
-=========================== */
+/* ========================
+   Vote
+======================== */
 app.post('/vote', (req, res) => {
   const { candidate } = req.body;
 
   if (!candidate) {
-    return res.status(400).json({ error: "Candidate name is required." });
+    return res.status(400).json({ error: "Candidate required" });
   }
 
-  const query = `
-    UPDATE votes 
-    SET vote_count = vote_count + 1 
-    WHERE candidate = ?
-  `;
+  const allowedCandidates = ['Sabreena', 'Azaz'];
 
-  db.query(query, [candidate], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error recording vote." });
+  if (!allowedCandidates.includes(candidate)) {
+    return res.status(400).json({ error: "Invalid candidate" });
+  }
+
+  db.query(
+    "UPDATE votes SET vote_count = vote_count + 1 WHERE candidate = ?",
+    [candidate],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Vote failed" });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Candidate not found in DB" });
+      }
+
+      res.json({ success: true, message: `Vote recorded for ${candidate}` });
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Candidate not found." });
-    }
-
-    res.json({ success: true, message: `Vote recorded for ${candidate}` });
-  });
+  );
 });
 
-/* ===========================
-   Remove Vote API
-=========================== */
+/* ========================
+   Remove Vote
+======================== */
 app.post('/removeVote', (req, res) => {
   const { candidate } = req.body;
 
   if (!candidate) {
-    return res.status(400).json({ error: "Candidate name is required." });
+    return res.status(400).json({ error: "Candidate required" });
   }
 
-  const query = `
-    UPDATE votes 
-    SET vote_count = vote_count - 1 
-    WHERE candidate = ? AND vote_count > 0
-  `;
+  db.query(
+    "UPDATE votes SET vote_count = vote_count - 1 WHERE candidate = ? AND vote_count > 0",
+    [candidate],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Remove failed" });
+      }
 
-  db.query(query, [candidate], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error removing vote." });
+      if (result.affectedRows === 0) {
+        return res.status(400).json({ error: "No vote to remove" });
+      }
+
+      res.json({ success: true, message: `Vote removed for ${candidate}` });
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Candidate not found or no votes left." });
-    }
-
-    res.json({ success: true, message: `Vote removed for ${candidate}` });
-  });
+  );
 });
 
-/* ===========================
-   Get Results API
-=========================== */
+/* ========================
+   Results
+======================== */
 app.get('/results', (req, res) => {
   db.query("SELECT candidate, vote_count FROM votes", (err, rows) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Error fetching results." });
+      return res.status(500).json({ error: "Failed to fetch results" });
     }
 
     res.json(rows);
   });
-});
-
-/* ===========================
-   Root Route
-=========================== */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
