@@ -1,8 +1,11 @@
-const API_URL = 'http://localhost:3000';
+const API_URL = window.location.origin;
 
 let hasVoted = localStorage.getItem("hasVoted") === "true";
 let votedCandidate = localStorage.getItem("votedCandidate");
 
+/* ===========================
+   Vote
+=========================== */
 function vote(candidate) {
   if (hasVoted) {
     alert("❌ You have already voted.");
@@ -14,9 +17,15 @@ function vote(candidate) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ candidate })
   })
-    .then(res => res.text())
-    .then(msg => {
-      alert(msg);
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("❌ " + data.error);
+        return;
+      }
+
+      alert("✅ " + data.message);
+
       hasVoted = true;
       votedCandidate = candidate;
       localStorage.setItem("hasVoted", "true");
@@ -25,6 +34,9 @@ function vote(candidate) {
     .catch(() => alert("❌ Server error. Try again later."));
 }
 
+/* ===========================
+   Remove Vote
+=========================== */
 function removeVote() {
   if (!hasVoted) {
     alert("❌ You have not voted yet.");
@@ -36,9 +48,15 @@ function removeVote() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ candidate: votedCandidate })
   })
-    .then(res => res.text())
-    .then(msg => {
-      alert(msg);
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("❌ " + data.error);
+        return;
+      }
+
+      alert("✅ " + data.message);
+
       hasVoted = false;
       votedCandidate = null;
       localStorage.setItem("hasVoted", "false");
@@ -47,21 +65,32 @@ function removeVote() {
     .catch(() => alert("❌ Server error. Try again later."));
 }
 
+/* ===========================
+   Show Results
+=========================== */
 document.getElementById("endVote").onclick = () => {
   const password = prompt("Enter admin password:");
+
   if (password !== "0188") {
     alert("❌ Incorrect password.");
     return;
   }
 
-  document.getElementById("results").innerHTML = "<h3>Loading results...</h3>";
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "<h3>Loading results...</h3>";
 
   fetch(`${API_URL}/results`)
     .then(res => res.json())
     .then(data => {
+      if (!data.length) {
+        resultsDiv.innerHTML = "<h3>No candidates found.</h3>";
+        return;
+      }
+
       let resultHTML = "<h3>Voting Results:</h3>";
-      let topVotes = Math.max(...data.map(d => d.vote_count));
-      let winners = data.filter(d => d.vote_count === topVotes);
+
+      const topVotes = Math.max(...data.map(d => d.vote_count));
+      const winners = data.filter(d => d.vote_count === topVotes);
 
       data.forEach(row => {
         resultHTML += `<p>${row.candidate}: ${row.vote_count} votes</p>`;
@@ -73,12 +102,11 @@ document.getElementById("endVote").onclick = () => {
         resultHTML += `<p>🤝 It's a tie!</p>`;
       }
 
-      document.getElementById("results").innerHTML = resultHTML;
-      document.getElementById("results").classList.add('show');
+      resultsDiv.innerHTML = resultHTML;
+      resultsDiv.classList.add('show');
     })
     .catch(() => {
-      alert("❌ Failed to fetch results. Try again later.");
-      document.getElementById("results").innerHTML = "<h3>Error loading results</h3>";
+      resultsDiv.innerHTML = "<h3>Error loading results</h3>";
     });
 };
 
