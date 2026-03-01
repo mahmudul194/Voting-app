@@ -16,9 +16,11 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "mysql2": "^3.18.2"
   }
 }
