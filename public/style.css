@@ -154,3 +154,27 @@ button span {
     transform: translateY(0);
   }
 }
+
+
+/* Login Section */
+#loginSection {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+#loginSection input {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  color: #ffffff;
+  outline: none;
+  transition: 0.3s ease;
+}
+
+#loginSection input:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 8px rgba(38, 104, 255, 0.5);
+}

@@ -1,112 +1,93 @@
-const API_URL = window.location.origin;
+const API = window.location.origin;
 
-let hasVoted = localStorage.getItem("hasVoted") === "true";
-let votedCandidate = localStorage.getItem("votedCandidate");
+/* ===========================
+   LOGIN
+=========================== */
+function login() {
+  const name = document.getElementById("name").value;
+  const student_id = document.getElementById("student_id").value;
+  const section = document.getElementById("section").value;
+  const batch = document.getElementById("batch").value;
 
-/* ========================
-   Vote
-======================== */
+  fetch(`${API}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, student_id, section, batch })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert("❌ " + data.error);
+      return;
+    }
+
+    alert("✅ Login Successful");
+
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("votingSection").style.display = "block";
+  })
+  .catch(() => alert("❌ Server error"));
+}
+
+/* ===========================
+   VOTE (Protected)
+=========================== */
 function vote(candidate) {
-  if (hasVoted) {
-    alert("❌ You have already voted.");
-    return;
-  }
-
-  fetch(`${API_URL}/vote`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  fetch(`${API}/vote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ candidate })
   })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        alert("❌ " + data.error);
-        return;
-      }
-
-      alert("✅ " + data.message);
-
-      hasVoted = true;
-      votedCandidate = candidate;
-      localStorage.setItem("hasVoted", "true");
-      localStorage.setItem("votedCandidate", candidate);
-    })
-    .catch(() => alert("❌ Server error."));
-}
-
-/* ========================
-   Remove Vote
-======================== */
-function removeVote() {
-  if (!hasVoted) {
-    alert("❌ You have not voted yet.");
-    return;
-  }
-
-  fetch(`${API_URL}/removeVote`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ candidate: votedCandidate })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message || data.error);
   })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        alert("❌ " + data.error);
-        return;
-      }
-
-      alert("✅ " + data.message);
-
-      hasVoted = false;
-      votedCandidate = null;
-      localStorage.setItem("hasVoted", "false");
-      localStorage.removeItem("votedCandidate");
-    })
-    .catch(() => alert("❌ Server error."));
+  .catch(() => alert("❌ Server error"));
 }
 
-/* ========================
-   Show Results
-======================== */
-document.getElementById("endVote").onclick = () => {
-  const password = prompt("Enter admin password:");
-
-  if (password !== "0188") {
-    alert("❌ Incorrect password.");
-    return;
-  }
-
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = "<h3>Loading results...</h3>";
-
-  fetch(`${API_URL}/results`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.length) {
-        resultsDiv.innerHTML = "<h3>No candidates found</h3>";
-        return;
-      }
-
-      let resultHTML = "<h3>Voting Results:</h3>";
-
-      const topVotes = Math.max(...data.map(d => d.vote_count));
-      const winners = data.filter(d => d.vote_count === topVotes);
-
-      data.forEach(row => {
-        resultHTML += `<p>${row.candidate}: ${row.vote_count} votes</p>`;
-      });
-
-      if (winners.length === 1) {
-        resultHTML += `<p>🏆 Winner: <strong>${winners[0].candidate}</strong></p>`;
-      } else {
-        resultHTML += `<p>🤝 It's a tie!</p>`;
-      }
-
-      resultsDiv.innerHTML = resultHTML;
-    })
-    .catch(() => {
-      resultsDiv.innerHTML = "<h3>Error loading results</h3>";
-    });
+/* ===========================
+   REMOVE VOTE
+=========================== */
+document.getElementById("removeVoteBtn").onclick = () => {
+  fetch(`${API}/removeVote`, {
+    method: "POST"
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message || data.error);
+  });
 };
 
-document.getElementById("removeVoteBtn").onclick = removeVote;
+/* ===========================
+   SHOW RESULTS
+=========================== */
+document.getElementById("endVote").onclick = () => {
+  fetch(`${API}/results`)
+  .then(res => res.json())
+  .then(data => {
+    const resultsDiv = document.getElementById("results");
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    let html = "<h3>Voting Results:</h3>";
+
+    const topVotes = Math.max(...data.map(d => d.vote_count));
+    const winners = data.filter(d => d.vote_count === topVotes);
+
+    data.forEach(row => {
+      html += `<p>${row.candidate}: ${row.vote_count} votes</p>`;
+    });
+
+    if (winners.length === 1) {
+      html += `<p>🏆 Winner: <strong>${winners[0].candidate}</strong></p>`;
+    } else {
+      html += `<p>🤝 It's a tie!</p>`;
+    }
+
+    resultsDiv.innerHTML = html;
+    resultsDiv.classList.add("show");
+  });
+};
