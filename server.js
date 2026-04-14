@@ -12,17 +12,22 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MySQL Connection Configuration
-const dbConfig = process.env.DATABASE_URL || {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: false // Required for many cloud MySQL providers like TiDB/Render
-  }
-};
-
-const db = mysql.createPool(dbConfig);
+let db;
+if (process.env.DATABASE_URL) {
+  // use the connection string (ensure you append the SSL param in the Render dashboard)
+  db = mysql.createPool(process.env.DATABASE_URL);
+} else {
+  // Use individual variables for local dev
+  db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+}
 
 // Database Initialization
 async function initDB() {
@@ -162,3 +167,4 @@ app.post("/results", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+
