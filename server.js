@@ -14,10 +14,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 // MySQL Connection Configuration
 let db;
 if (process.env.DATABASE_URL) {
-  // use the connection string (ensure you append the SSL param in the Render dashboard)
-  db = mysql.createPool(process.env.DATABASE_URL);
+  // Parse the DATABASE_URL to inject SSL settings manually
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  db = mysql.createPool({
+    host: dbUrl.hostname,
+    port: dbUrl.port || 4000,
+    user: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.substring(1),
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 } else {
-  // Use individual variables for local dev
   db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
