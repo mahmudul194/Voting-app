@@ -57,6 +57,9 @@ async function login() {
     const loginSec = document.getElementById("loginSection");
     const voteSec = document.getElementById("votingSection");
     
+    // Set global student_id for subsequent requests
+    student_id = document.getElementById("student_id").value.trim();
+    
     loginSec.style.opacity = "0";
     setTimeout(() => {
       loginSec.style.display = "none";

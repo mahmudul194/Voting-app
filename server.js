@@ -89,26 +89,30 @@ app.post("/login", async (req, res) => {
     return res.status(400).json({ error: "All fields required" });
 
   if (section.toUpperCase() !== "L")
-    return res.status(403).json({ error: "Only Section L allowed for this simulator" });
+    return res.status(403).json({ error: "Only Section L students can verify themselves" });
 
   try {
     const [rows] = await db.query("SELECT * FROM students WHERE student_id = ?", [student_id]);
     
     if (rows.length === 0) {
-      // In a real app, we wouldn't auto-register, but for a simulator, maybe?
-      // For now, let's stick to the user's logic: Student must exist.
-      return res.status(403).json({ error: "Student not registered in the system" });
+      // Auto-Registration for new students
+      await db.query(
+        "INSERT INTO students (name, student_id, section, batch) VALUES (?, ?, ?, ?)",
+        [name, student_id, section, batch]
+      );
+      return res.json({ success: true, message: "Verification & Registration successful!" });
     }
 
     const student = rows[0];
+    // Verify existing student details to prevent identity theft
     if (student.name.toLowerCase() !== name.toLowerCase() || student.batch !== batch) {
-      return res.status(403).json({ error: "Student information mismatch" });
+      return res.status(403).json({ error: "Student ID exists, but name or batch mismatch" });
     }
 
-    res.json({ success: true, message: "Welcome, " + student.name });
+    res.json({ success: true, message: "Verification successful! Welcome back." });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error during verification" });
   }
 });
 
