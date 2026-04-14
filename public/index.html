@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voting Simulator | Premium</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Font: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      
+      <!-- LOGIN SECTION -->
+      <section id="loginSection">
+        <h1>🗳 Vote Login</h1>
+        <div class="login-form">
+          <div class="input-group">
+            <input type="text" id="name" placeholder="Full Name" />
+          </div>
+          <div class="input-group">
+            <input type="text" id="student_id" placeholder="Student ID (e.g., 232-35-001)" />
+          </div>
+          <div class="input-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <input type="text" id="section" placeholder="Section (L focus)" />
+            <input type="text" id="batch" placeholder="Batch" />
+          </div>
+          <button onclick="login()">
+            <span>Login to Continue</span>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- VOTING SECTION -->
+      <section id="votingSection" style="display: none;">
+        <h1>🗳 CR Selection</h1>
+        <p style="text-align: center; color: var(--text-muted); margin-top: -20px; margin-bottom: 30px;">Choose your representative</p>
+        
+        <div class="button-group">
+          <button class="vote-btn" onclick="vote('Sabreena')">
+            <svg class="icon" style="width: 32px; height: 32px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sabreena</span>
+          </button>
+          <button class="vote-btn" onclick="vote('Azaz')">
+            <svg class="icon" style="width: 32px; height: 32px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Azaz</span>
+          </button>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results">
+          <h2 style="font-size: 1.25rem; margin-bottom: 20px; text-align: center;">Live Results</h2>
+          <div id="resultsList"></div>
+        </div>
+        
+        <div class="actions">
+          <button id="endVote">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>View Admin Results</span>
+          </button>
+          <button id="removeVoteBtn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            <span>Withdraw My Vote</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">
+    <div id="toastIcon"></div>
+    <span id="toastMessage"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
