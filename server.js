@@ -11,16 +11,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MySQL Pool
-const db = mysql.createPool({
+// MySQL Connection Configuration
+const dbConfig = process.env.DATABASE_URL || {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+  ssl: {
+    rejectUnauthorized: false // Required for many cloud MySQL providers like TiDB/Render
+  }
+};
+
+const db = mysql.createPool(dbConfig);
 
 // Database Initialization
 async function initDB() {
