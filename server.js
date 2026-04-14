@@ -91,6 +91,9 @@ app.post("/login", async (req, res) => {
   if (section.toUpperCase() !== "L")
     return res.status(403).json({ error: "Only Section L students can verify themselves" });
 
+  if (batch !== "41")
+    return res.status(403).json({ error: "Only Batch 41 students are eligible to vote" });
+
   try {
     const [rows] = await db.query("SELECT * FROM students WHERE student_id = ?", [student_id]);
     
