@@ -183,7 +183,21 @@ app.post("/results", async (req, res) => {
       ORDER BY v.voted_at DESC
     `);
 
-    res.json({ summary, details });
+    // Advanced Analytics Queries
+    const [[{ total: totalStudents }]] = await db.query("SELECT COUNT(*) as total FROM students");
+    const [timeline] = await db.query(`
+      SELECT DATE_FORMAT(voted_at, '%H:00') as time, COUNT(*) as count 
+      FROM votes 
+      GROUP BY time 
+      ORDER BY time ASC
+    `);
+
+    res.json({ 
+      summary, 
+      details, 
+      totalStudents,
+      timeline 
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch results" });
