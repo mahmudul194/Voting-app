@@ -202,3 +202,10 @@ document.getElementById("endVote").onclick = async () => {
     showToast("Error fetching results", "error");
   }
 };
+
+/* CLOSE RESULTS */
+document.getElementById("closeResults").onclick = () => {
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.classList.remove("show");
+  setTimeout(() => resultsDiv.style.display = "none", 400);
+};
