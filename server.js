@@ -172,10 +172,18 @@ app.post("/results", async (req, res) => {
     return res.status(403).json({ error: "Unauthorized access: Incorrect admin password" });
 
   try {
-    const [rows] = await db.query(
+    const [summary] = await db.query(
       "SELECT candidate, COUNT(*) as votes FROM votes GROUP BY candidate"
     );
-    res.json(rows);
+    
+    const [details] = await db.query(`
+      SELECT v.candidate, v.voted_at, s.name, s.student_id, s.batch, s.section 
+      FROM votes v 
+      JOIN students s ON v.student_id = s.student_id
+      ORDER BY v.voted_at DESC
+    `);
+
+    res.json({ summary, details });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch results" });
