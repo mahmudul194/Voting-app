@@ -175,11 +175,12 @@ document.getElementById("endVote").onclick = async () => {
       `;
     });
 
-    // Update Analytics Dashboard
+    resultsDiv.style.display = "block";
+    
+    // Update Analytics Dashboard (Now called AFTER display: block)
     updateAnalytics(summary, totalStudents, timeline);
 
     // Render Voter Details
-    const voterDetailsDiv = document.getElementById("voterDetails");
     const voterTableBody = document.getElementById("voterTableBody");
     voterTableBody.innerHTML = "";
 
@@ -193,10 +194,9 @@ document.getElementById("endVote").onclick = async () => {
           </tr>
         `;
       });
-      voterDetailsDiv.style.display = "block";
+      document.getElementById("voterDetails").style.display = "block";
     }
 
-    resultsDiv.style.display = "block";
     setTimeout(() => resultsDiv.classList.add("show"), 10);
     showToast("Advanced Analytics loaded", "success");
 
@@ -220,7 +220,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
   const shareOptions = {
     series: summary.map(s => s.votes),
     labels: summary.map(s => s.candidate),
-    chart: { type: 'donut', height: 280, foreColor: '#94a3b8' },
+    chart: { type: 'donut', height: 280, width: '100%', foreColor: '#94a3b8' },
     colors: ['#6366f1', '#ec4899', '#10b981'],
     stroke: { show: false },
     dataLabels: { enabled: false },
@@ -235,7 +235,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
 
   const timelineOptions = {
     series: [{ name: 'Votes', data: timeline.map(t => t.count) }],
-    chart: { type: 'area', height: 280, toolbar: { show: false }, foreColor: '#94a3b8' },
+    chart: { type: 'area', height: 280, width: '100%', toolbar: { show: false }, foreColor: '#94a3b8' },
     colors: ['#6366f1'],
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1 } },
     dataLabels: { enabled: false },
