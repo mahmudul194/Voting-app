@@ -8,6 +8,7 @@
   <!-- Google Font: Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
 
@@ -58,7 +59,34 @@
         <!-- RESULTS -->
         <div id="results">
           <button id="closeResults" class="close-btn" title="Close Results">&times;</button>
-          <h2 style="font-size: 1.25rem; margin-bottom: 20px; text-align: center;">Live Results</h2>
+          <h2 style="font-size: 1.25rem; margin-bottom: 20px; text-align: center;">Advanced Analytics Panel</h2>
+          
+          <div id="analyticsDashboard" style="display: none; margin-bottom: 32px;">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-label">Total Voters</span>
+                <span class="stat-value" id="statTotalStudents">0</span>
+              </div>
+              <div class="stat-card accent">
+                <span class="stat-label">Participation</span>
+                <span class="stat-value" id="statParticipation">0%</span>
+              </div>
+              <div class="stat-card primary">
+                <span class="stat-label">Current Leader</span>
+                <span class="stat-value" id="statLeader">-</span>
+              </div>
+            </div>
+            
+            <div class="charts-grid">
+              <div class="chart-container">
+                <div id="shareChart"></div>
+              </div>
+              <div class="chart-container">
+                <div id="timelineChart"></div>
+              </div>
+            </div>
+          </div>
+
           <div id="resultsList"></div>
           
           <div id="voterDetails" style="margin-top: 32px; display: none;">
