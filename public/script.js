@@ -152,7 +152,7 @@ document.getElementById("endVote").onclick = async () => {
       return;
     }
 
-    const { summary, details } = data;
+    const { summary, details, totalStudents, timeline } = data;
 
     const resultsDiv = document.getElementById("results");
     const resultsList = document.getElementById("resultsList");
@@ -175,6 +175,9 @@ document.getElementById("endVote").onclick = async () => {
       `;
     });
 
+    // Update Analytics Dashboard
+    updateAnalytics(summary, totalStudents, timeline);
+
     // Render Voter Details
     const voterDetailsDiv = document.getElementById("voterDetails");
     const voterTableBody = document.getElementById("voterTableBody");
@@ -195,13 +198,58 @@ document.getElementById("endVote").onclick = async () => {
 
     resultsDiv.style.display = "block";
     setTimeout(() => resultsDiv.classList.add("show"), 10);
-    showToast("Admin results loaded successfully", "success");
+    showToast("Advanced Analytics loaded", "success");
 
   } catch (err) {
     console.error(err);
     showToast("Error fetching results", "error");
   }
 };
+
+let shareChart, timelineChart;
+function updateAnalytics(summary, totalStudents, timeline) {
+  const totalVotes = summary.reduce((acc, curr) => acc + curr.votes, 0);
+  const participation = totalStudents > 0 ? ((totalVotes / totalStudents) * 100).toFixed(1) : 0;
+  
+  document.getElementById("statTotalStudents").innerText = totalStudents;
+  document.getElementById("statParticipation").innerText = participation + "%";
+  
+  const leader = summary.length > 0 ? summary.reduce((prev, curr) => (prev.votes > curr.votes) ? prev : curr) : null;
+  document.getElementById("statLeader").innerText = leader ? leader.candidate : "N/A";
+
+  const shareOptions = {
+    series: summary.map(s => s.votes),
+    labels: summary.map(s => s.candidate),
+    chart: { type: 'donut', height: 280, foreColor: '#94a3b8' },
+    colors: ['#6366f1', '#ec4899', '#10b981'],
+    stroke: { show: false },
+    dataLabels: { enabled: false },
+    legend: { position: 'bottom' },
+    plotOptions: { pie: { donut: { size: '75%', background: 'transparent' } } },
+    title: { text: "Candidate Share", align: 'center', style: { color: '#f8fafc' } }
+  };
+
+  if (shareChart) shareChart.destroy();
+  shareChart = new ApexCharts(document.querySelector("#shareChart"), shareOptions);
+  shareChart.render();
+
+  const timelineOptions = {
+    series: [{ name: 'Votes', data: timeline.map(t => t.count) }],
+    chart: { type: 'area', height: 280, toolbar: { show: false }, foreColor: '#94a3b8' },
+    colors: ['#6366f1'],
+    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1 } },
+    dataLabels: { enabled: false },
+    xaxis: { categories: timeline.map(t => t.time) },
+    grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
+    title: { text: "Voting Velocity", align: 'center', style: { color: '#f8fafc' } }
+  };
+
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new ApexCharts(document.querySelector("#timelineChart"), timelineOptions);
+  timelineChart.render();
+
+  document.getElementById("analyticsDashboard").style.display = "block";
+}
 
 /* CLOSE RESULTS */
 document.getElementById("closeResults").onclick = () => {
