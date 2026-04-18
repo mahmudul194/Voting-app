@@ -152,13 +152,15 @@ document.getElementById("endVote").onclick = async () => {
       return;
     }
 
+    const { summary, details } = data;
+
     const resultsDiv = document.getElementById("results");
     const resultsList = document.getElementById("resultsList");
     resultsList.innerHTML = "";
     
-    const totalVotes = data.reduce((acc, curr) => acc + curr.votes, 0);
+    const totalVotes = summary.reduce((acc, curr) => acc + curr.votes, 0);
 
-    data.forEach(row => {
+    summary.forEach(row => {
       const percentage = totalVotes > 0 ? (row.votes / totalVotes * 100).toFixed(1) : 0;
       resultsList.innerHTML += `
         <div class="result-item">
@@ -173,11 +175,30 @@ document.getElementById("endVote").onclick = async () => {
       `;
     });
 
+    // Render Voter Details
+    const voterDetailsDiv = document.getElementById("voterDetails");
+    const voterTableBody = document.getElementById("voterTableBody");
+    voterTableBody.innerHTML = "";
+
+    if (details && details.length > 0) {
+      details.forEach(voter => {
+        voterTableBody.innerHTML += `
+          <tr>
+            <td style="font-weight: 600;">${voter.name}</td>
+            <td style="color: var(--text-muted); font-family: monospace;">${voter.student_id}</td>
+            <td><span class="badge badge-${voter.candidate}">${voter.candidate}</span></td>
+          </tr>
+        `;
+      });
+      voterDetailsDiv.style.display = "block";
+    }
+
     resultsDiv.style.display = "block";
     setTimeout(() => resultsDiv.classList.add("show"), 10);
-    showToast("Results loaded successfully", "success");
+    showToast("Admin results loaded successfully", "success");
 
   } catch (err) {
+    console.error(err);
     showToast("Error fetching results", "error");
   }
 };
