@@ -59,6 +59,22 @@
         <div id="results">
           <h2 style="font-size: 1.25rem; margin-bottom: 20px; text-align: center;">Live Results</h2>
           <div id="resultsList"></div>
+          
+          <div id="voterDetails" style="margin-top: 32px; display: none;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center; color: var(--text-main);">Voter Logs (Admin Only)</h3>
+            <div class="voter-list-container">
+              <table class="voter-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>ID</th>
+                    <th>Candidate</th>
+                  </tr>
+                </thead>
+                <tbody id="voterTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
         
         <div class="actions">
