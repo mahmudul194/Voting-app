@@ -180,8 +180,10 @@ document.getElementById("endVote").onclick = async () => {
     // Expand container for dashboard
     document.querySelector(".container").classList.add("large-card");
 
-    // Update Analytics Dashboard (Now called AFTER display: block)
-    updateAnalytics(summary, totalStudents, timeline);
+    // Update Analytics Dashboard after transition
+    setTimeout(() => {
+      updateAnalytics(summary, totalStudents, timeline);
+    }, 700);
 
     // Render Voter Details
     const voterTableBody = document.getElementById("voterTableBody");
@@ -228,8 +230,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
     stroke: { show: false },
     dataLabels: { enabled: false },
     legend: { position: 'bottom' },
-    plotOptions: { pie: { donut: { size: '75%', background: 'transparent' } } },
-    title: { text: "Candidate Share", align: 'center', style: { color: '#f8fafc' } }
+    plotOptions: { pie: { donut: { size: '75%', background: 'transparent' } } }
   };
 
   if (shareChart) shareChart.destroy();
@@ -243,8 +244,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1 } },
     dataLabels: { enabled: false },
     xaxis: { categories: timeline.map(t => t.time) },
-    grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
-    title: { text: "Voting Velocity", align: 'center', style: { color: '#f8fafc' } }
+    grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 }
   };
 
   if (timelineChart) timelineChart.destroy();
