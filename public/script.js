@@ -177,6 +177,9 @@ document.getElementById("endVote").onclick = async () => {
 
     resultsDiv.style.display = "block";
     
+    // Expand container for dashboard
+    document.querySelector(".container").classList.add("large-card");
+
     // Update Analytics Dashboard (Now called AFTER display: block)
     updateAnalytics(summary, totalStudents, timeline);
 
@@ -220,7 +223,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
   const shareOptions = {
     series: summary.map(s => s.votes),
     labels: summary.map(s => s.candidate),
-    chart: { type: 'donut', height: 280, width: '100%', foreColor: '#94a3b8' },
+    chart: { type: 'donut', height: 380, width: '100%', foreColor: '#94a3b8' },
     colors: ['#6366f1', '#ec4899', '#10b981'],
     stroke: { show: false },
     dataLabels: { enabled: false },
@@ -235,7 +238,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
 
   const timelineOptions = {
     series: [{ name: 'Votes', data: timeline.map(t => t.count) }],
-    chart: { type: 'area', height: 280, width: '100%', toolbar: { show: false }, foreColor: '#94a3b8' },
+    chart: { type: 'area', height: 380, width: '100%', toolbar: { show: false }, foreColor: '#94a3b8' },
     colors: ['#6366f1'],
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1 } },
     dataLabels: { enabled: false },
@@ -254,6 +257,7 @@ function updateAnalytics(summary, totalStudents, timeline) {
 /* CLOSE RESULTS */
 document.getElementById("closeResults").onclick = () => {
   const resultsDiv = document.getElementById("results");
+  document.querySelector(".container").classList.remove("large-card");
   resultsDiv.classList.remove("show");
   setTimeout(() => resultsDiv.style.display = "none", 400);
 };
